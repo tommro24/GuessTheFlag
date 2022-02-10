@@ -58,10 +58,7 @@ struct ContentView: View {
                         Button {
                             flagTapped(number)
                         } label: {
-                            Image(countries[number])
-                                .renderingMode(.original)
-                                .clipShape(Capsule())
-                                .shadow(radius: 10)
+                            FlagImage(countryName: countries[number])
                         }
                     }
                 }
@@ -74,7 +71,7 @@ struct ContentView: View {
                 Spacer()
                 
                 Text("Score: \(score)")
-                    .font(.body.bold())
+                    .font(.title.bold())
                     .foregroundColor(.white)
                 
                 Spacer()
@@ -127,6 +124,18 @@ struct ContentView: View {
         score = 0
         numberOfAnswers = 0
         askQuestion()
+    }
+}
+
+struct FlagImage: View {
+    
+    var countryName: String
+    
+    var body: some View {
+        Image(countryName)
+            .renderingMode(.original)
+            .clipShape(Capsule())
+            .shadow(radius: 10)
     }
 }
 
