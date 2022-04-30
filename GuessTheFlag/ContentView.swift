@@ -17,6 +17,12 @@ struct ContentView: View {
     @State private var currentAnswer = 1
     var maxAnswers = 8
     
+    @State private var rotateAmount = [0.0,0.0,0.0]
+    @State private var opacityAmount = [1.0,1.0,1.0]
+    @State private var scaleAmount = [1.0,1.0,1.0]
+    @State private var offsetXAmount = [0.0,0.0,0.0]
+    @State private var offsetYAmount = [0.0,0.0,0.0]
+    
     @State private var countries = ["Estonia","France","Germany","Ireland","Italy","Monaco","Nigeria","Poland","Russia","Spain","UK","US"]
         .shuffled()
     @State private var correctAnswer = Int.random(in: 0...2)
@@ -59,6 +65,11 @@ struct ContentView: View {
                             flagTapped(number)
                         } label: {
                             FlagImage(countryName: countries[number])
+                                .rotation3DEffect(.degrees(rotateAmount[number]), axis: (x: 0, y: 1, z: 0))
+                                .opacity(opacityAmount[number])
+                                .scaleEffect(scaleAmount[number])
+                                .offset(x: offsetXAmount[number], y: offsetYAmount[number])
+                                .transition(.slide)
                         }
                     }
                 }
@@ -68,12 +79,11 @@ struct ContentView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 20))
                 
                 Spacer()
-                Spacer()
                 
                 Text("Score: \(score)")
                     .font(.title.bold())
                     .foregroundColor(.white)
-                
+                Spacer()
                 Spacer()
             }
         }
@@ -93,7 +103,6 @@ struct ContentView: View {
         }
     }
     
-    
     func flagTapped(_ number: Int) {
         numberOfAnswers += 1
         if (number == correctAnswer) {
@@ -104,7 +113,29 @@ struct ContentView: View {
             scoreTitle = "Wrong!"
             scoreMessage = "That's the flag of \(countries[number])"
         }
-        showingScore = true
+        withAnimation {
+            rotateAmount[number] = 360
+            for nr in 0 ..< opacityAmount.count {
+                if nr != number {
+                    opacityAmount[nr] = 0.25
+                    scaleAmount[nr] = 0.75
+                    
+                    if number == 1 {
+                        offsetXAmount[nr] = 0
+                        offsetYAmount[nr] = 50 * Double(nr == 0 ? -1 : 1)
+                    } else {
+                        offsetXAmount[nr] = 200 * Double(nr % 2 == 0 ? -1 : 1) * Double(number == 0 ? -1 : 1)
+                        offsetYAmount[nr] = 0
+                    }
+                } else {
+                    scaleAmount[nr] = 1.25
+                }
+            }
+            
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            showingScore = true
+        }
     }
     
     func askQuestion() {
@@ -116,6 +147,14 @@ struct ContentView: View {
             currentAnswer += 1
             countries.shuffle()
             correctAnswer = Int.random(in: 0...2)
+        }
+        
+        withAnimation {
+            rotateAmount = [0.0,0.0,0.0]
+            opacityAmount = [1.0,1.0,1.0]
+            scaleAmount = [1.0,1.0,1.0]
+            offsetXAmount = [0.0,0.0,0.0]
+            offsetYAmount = [0.0,0.0,0.0]
         }
     }
     
